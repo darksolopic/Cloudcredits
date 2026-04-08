@@ -5,6 +5,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 import numpy as np
 import pickle
+import os
 
 # ----------------------------
 # App Initialization
@@ -30,8 +31,14 @@ app.add_middleware(
 # Load Model
 # ----------------------------
 try:
-    model = pickle.load(open("model.pkl", "rb"))
-    scaler = pickle.load(open("scaler.pkl", "rb"))
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+    model_path = os.path.join(BASE_DIR, "model.pkl")
+    scaler_path = os.path.join(BASE_DIR, "scaler.pkl")
+
+    model = pickle.load(open(model_path, "rb"))
+    scaler = pickle.load(open(scaler_path, "rb"))
+
 except Exception as e:
     raise RuntimeError(f"Error loading model: {e}")
 
