@@ -28,4 +28,4 @@ model.fit(X_train, y_train)
 with open("model/diabetes_model.pkl", "wb") as f:
     pickle.dump(model, f)
 
-print("✅ Model trained & saved")
+print("Model trained & saved")

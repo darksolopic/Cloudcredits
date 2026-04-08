@@ -8,35 +8,35 @@ import os
 
 app = FastAPI()
 
-# ✅ BASE PATH
+# BASE PATH
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 TEMPLATE_PATH = os.path.join(BASE_DIR, "templates", "index.html")
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 MODEL_PATH = os.path.join(BASE_DIR, "model", "diabetes_model.pkl")
 
-# ✅ Static
+# Static
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-# ✅ Load model
+# Load model
 with open(MODEL_PATH, "rb") as f:
     model = pickle.load(f)
 
 
-# ✅ Function to load HTML
+# Function to load HTML
 def load_html(result=""):
     with open(TEMPLATE_PATH, "r") as f:
         html = f.read()
     return html.replace("{{ result }}", result)
 
 
-# ✅ Home route
+# Home route
 @app.get("/", response_class=HTMLResponse)
 def home():
     return load_html()
 
 
-# ✅ Predict route
+# Predict route
 @app.post("/predict", response_class=HTMLResponse)
 def predict(
     pregnancies: float = Form(...),
@@ -61,7 +61,7 @@ def predict(
     return load_html(result)
 
 
-# ✅ Run locally
+# Run locally
 if __name__ == "__main__":
     import uvicorn
     webbrowser.open("http://127.0.0.1:8000")
