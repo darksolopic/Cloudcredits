@@ -1,10 +1,6 @@
-# Python cache
 __pycache__/
 *.pyc
-
-# Virtual environment
-venv/
-.env/
-
-# Logs
-*.log
+.venv/
+env/
+.DS_Store
+Thumbs.db
