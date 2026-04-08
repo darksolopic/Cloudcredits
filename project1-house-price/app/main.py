@@ -28,54 +28,54 @@ app.add_middleware(
 )
 
 # ----------------------------
+# Path Setup (FIXED FOR RENDER)
+# ----------------------------
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
+
+MODEL_PATH = os.path.join(CURRENT_DIR, "model.pkl")
+SCALER_PATH = os.path.join(CURRENT_DIR, "scaler.pkl")
+FRONTEND_DIR = os.path.join(PROJECT_ROOT, "frontend")
+
+# ----------------------------
 # Load Model
 # ----------------------------
 try:
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-    model_path = os.path.join(BASE_DIR, "model.pkl")
-    scaler_path = os.path.join(BASE_DIR, "scaler.pkl")
-
-    model = pickle.load(open(model_path, "rb"))
-    scaler = pickle.load(open(scaler_path, "rb"))
-
+    model = pickle.load(open(MODEL_PATH, "rb"))
+    scaler = pickle.load(open(SCALER_PATH, "rb"))
 except Exception as e:
     raise RuntimeError(f"Error loading model: {e}")
 
 # ----------------------------
-# Input Schema (UPDATED)
+# Input Schema
 # ----------------------------
 class HouseInput(BaseModel):
-    area: float = Field(..., gt=0, example=1500)
-    quality: int = Field(..., ge=1, le=10, example=7)
-    garage: int = Field(..., ge=0, example=2)
-    basement: float = Field(..., ge=0, example=800)
-    bathroom: int = Field(..., ge=0, example=2)
-    year_built: int = Field(..., ge=1800, le=2025, example=2005)
-    condition: int = Field(..., ge=1, le=10, example=5)
+    area: float = Field(..., gt=0)
+    quality: int = Field(..., ge=1, le=10)
+    garage: int = Field(..., ge=0)
+    basement: float = Field(..., ge=0)
+    bathroom: int = Field(..., ge=0)
+    year_built: int = Field(..., ge=1800, le=2025)
+    condition: int = Field(..., ge=1, le=10)
 
 # ----------------------------
 # Serve Frontend (ROOT UI)
 # ----------------------------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-frontend_path = os.path.join(BASE_DIR, "..", "frontend")
-
 @app.get("/")
 def serve_ui():
-    return FileResponse(os.path.join(frontend_path, "index.html"))
+    return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
 
 # ----------------------------
 # Static Files (CSS, JS)
 # ----------------------------
-app.mount("/static", StaticFiles(directory=frontend_path), name="static")
+app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
 # ----------------------------
-# Prediction Endpoint (UPDATED)
+# Prediction Endpoint
 # ----------------------------
 @app.post("/predict")
 def predict(data: HouseInput):
     try:
-        # Prepare input (7 features)
         input_data = np.array([[ 
             data.area,
             data.quality,
@@ -86,10 +86,8 @@ def predict(data: HouseInput):
             data.condition
         ]])
 
-        # Scale input
         input_scaled = scaler.transform(input_data)
 
-        # Predict (USD)
         prediction_usd = model.predict(input_scaled)[0]
 
         # Convert USD → INR
