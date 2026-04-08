@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>House Price Predictor</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h1>House Price Predictor</h1>
+        <p>Enter property details to estimate price</p>
+
+        <div class="form-group">
+            <input id="area" placeholder="Living Area (sq ft)">
+            <input id="quality" placeholder="Quality (1-10)">
+            <input id="garage" placeholder="Garage Cars">
+            <input id="basement" placeholder="Basement Area">
+            <input id="bathroom" placeholder="Bathrooms">
+            <input id="year_built" placeholder="Year Built (e.g. 2005)">
+            <input id="condition" placeholder="Condition (1-10)">
+        </div>
+
+        <button onclick="predict()">Predict Price</button>
+
+        <h2 id="result"></h2>
+    </div>
+</div>
+
+<script>
+async function predict() {
+    const api = "/predict";
+
+    let area = parseFloat(document.getElementById("area").value);
+    let quality = parseInt(document.getElementById("quality").value);
+    let garage = parseInt(document.getElementById("garage").value);
+    let basement = parseFloat(document.getElementById("basement").value);
+    let bathroom = parseInt(document.getElementById("bathroom").value);
+    let year_built = parseInt(document.getElementById("year_built").value);
+    let condition = parseInt(document.getElementById("condition").value);
+
+    try {
+        let res = await fetch(api, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                area,
+                quality,
+                garage,
+                basement,
+                bathroom,
+                year_built,
+                condition
+            })
+        });
+
+        let text = await res.text();  
+        try {
+            let data = JSON.parse(text);
+
+            if (res.ok) {
+                document.getElementById("result").innerText =
+                    "Estimated Price: ₹ " + data.predicted_price;
+            } else {
+                document.getElementById("result").innerText =
+                    "Error: " + (data.detail || JSON.stringify(data));
+            }
+
+        } catch (e) {
+            document.getElementById("result").innerText =
+                "Raw response: " + text;
+        }
+
+    } catch (error) {
+        document.getElementById("result").innerText =
+            "Failed to connect to API";
+    }
+}
+</script>
+
+</body>
+</html>
