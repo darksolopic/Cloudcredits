@@ -57,14 +57,17 @@ class HouseInput(BaseModel):
 # ----------------------------
 # Serve Frontend (ROOT UI)
 # ----------------------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+frontend_path = os.path.join(BASE_DIR, "..", "frontend")
+
 @app.get("/")
 def serve_ui():
-    return FileResponse("../frontend/index.html")
+    return FileResponse(os.path.join(frontend_path, "index.html"))
 
 # ----------------------------
 # Static Files (CSS, JS)
 # ----------------------------
-app.mount("/static", StaticFiles(directory="../frontend"), name="static")
+app.mount("/static", StaticFiles(directory=frontend_path), name="static")
 
 # ----------------------------
 # Prediction Endpoint (UPDATED)
